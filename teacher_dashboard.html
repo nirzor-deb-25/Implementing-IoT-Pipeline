@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teacher Dashboard • NFC Attendance</title>
+  <style>
+    :root{
+      --bg:#081120;
+      --panel:#101a2f;
+      --text:#eef2ff;
+      --muted:#a9b5d6;
+      --stroke:rgba(255,255,255,.10);
+      --accent1:#7c3aed;
+      --accent2:#06b6d4;
+      --success:#22c55e;
+      --warn:#f59e0b;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 700px at -10% -10%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(900px 700px at 110% 0%, rgba(6,182,212,.25), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:270px 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:rgba(8,14,30,.92);
+      border-right:1px solid var(--stroke);
+      padding:22px 16px;
+      position:sticky;
+      top:0;
+      height:100vh;
+    }
+
+    .brand{
+      padding:14px;
+      border-radius:16px;
+      background:linear-gradient(135deg, rgba(124,58,237,.20), rgba(6,182,212,.12));
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:20px;
+    }
+
+    .brand p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .nav{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .nav button{
+      width:100%;
+      text-align:left;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .nav button.active{
+      background:linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-color:transparent;
+    }
+
+    .main{
+      padding:24px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .page-title{
+      margin:0;
+      font-size:28px;
+      font-weight:800;
+    }
+
+    .page-subtitle{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(34,197,94,.10);
+      border:1px solid rgba(34,197,94,.30);
+      color:#bdf6cc;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--success);
+      box-shadow:0 0 16px rgba(34,197,94,.8);
+    }
+
+    .hero{
+      border:1px solid var(--stroke);
+      background:linear-gradient(135deg, rgba(124,58,237,.16), rgba(6,182,212,.10));
+      border-radius:var(--radius);
+      padding:18px;
+      margin-bottom:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .filters{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto auto;
+      gap:12px;
+      align-items:end;
+    }
+
+    .field label{
+      display:block;
+      margin-bottom:8px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      outline:none;
+    }
+
+    button{
+      padding:12px 16px;
+      border-radius:14px;
+      border:1px solid transparent;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg, var(--accent1), var(--accent2));
+      color:#fff;
+    }
+
+    .btn-secondary{
+      background:rgba(255,255,255,.08);
+      border-color:var(--stroke);
+      color:var(--text);
+    }
+
+    .btn-approve{
+      padding:8px 12px;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.30);
+      color:#c8f9d7;
+      border-radius:10px;
+      font-size:13px;
+    }
+
+    .btn-device{
+      padding:8px 12px;
+      background:rgba(6,182,212,.12);
+      border:1px solid rgba(6,182,212,.30);
+      color:#bdf4ff;
+      border-radius:10px;
+      font-size:13px;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .card .label{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:10px;
+    }
+
+    .card .num{
+      font-size:36px;
+      font-weight:800;
+      line-height:1;
+      margin-bottom:8px;
+    }
+
+    .card .sub{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .section{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      margin-top:18px;
+    }
+
+    .section-header{
+      padding:16px;
+      border-bottom:1px solid var(--stroke);
+    }
+
+    .section-header h2{
+      margin:0;
+      font-size:18px;
+    }
+
+    .section-sub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .page{
+      display:none;
+    }
+
+    .page.active{
+      display:block;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      text-align:left;
+      padding:14px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      font-size:14px;
+      vertical-align:middle;
+    }
+
+    th{
+      color:#d8defe;
+      background:rgba(255,255,255,.03);
+      font-weight:700;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+
+    .badge-open{
+      background:rgba(245,158,11,.14);
+      color:#ffe3b0;
+      border-color:rgba(245,158,11,.35);
+    }
+
+    .badge-present{
+      background:rgba(34,197,94,.14);
+      color:#c8f9d7;
+      border-color:rgba(34,197,94,.35);
+    }
+
+    .badge-short{
+      background:rgba(239,68,68,.14);
+      color:#ffc0c0;
+      border-color:rgba(239,68,68,.35);
+    }
+
+    .badge-pending{
+      background:rgba(245,158,11,.14);
+      color:#ffe3b0;
+      border-color:rgba(245,158,11,.35);
+    }
+
+    .badge-device{
+      background:rgba(6,182,212,.14);
+      color:#bdf4ff;
+      border-color:rgba(6,182,212,.35);
+    }
+
+    .badge-method{
+      background:rgba(255,255,255,.07);
+      color:#e7ebff;
+      border-color:rgba(255,255,255,.14);
+    }
+
+    .empty{
+      padding:22px 16px;
+      color:var(--muted);
+    }
+
+    .statusline{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    @media (max-width: 1100px){
+      .app{ grid-template-columns:1fr; }
+      .sidebar{ position:relative; height:auto; }
+      .filters{ grid-template-columns:1fr; }
+      .cards{ grid-template-columns:1fr; }
+      .section{ overflow-x:auto; }
+      table{ min-width:1300px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Teacher Dashboard</h1>
+        <p>NFC attendance by room, course, teacher and required minutes.</p>
+      </div>
+
+      <div class="nav">
+        <button class="nav-btn active" data-page="homePage">🏠 Dashboard Home</button>
+        <button class="nav-btn" data-page="attendancePage">📋 Attendance Logs</button>
+        <button class="nav-btn" data-page="summaryPage">📊 Student Summary</button>
+        <button class="nav-btn" data-page="pendingPage">📝 Pending Students</button>
+        <button class="nav-btn" data-page="devicePage">📱 Device Change Requests</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 class="page-title">Teacher Dashboard • NFC Attendance</h1>
+          <div class="page-subtitle">Filter attendance by room, course, teacher and student.</div>
+        </div>
+        <div class="status-pill">
+          <span class="dot"></span>
+          <span id="apiStatus">API OK</span>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="filters">
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="date">
+          </div>
+
+          <div class="field">
+            <label>Room</label>
+            <input type="text" id="room" placeholder="E201">
+          </div>
+
+          <div class="field">
+            <label>Course</label>
+            <input type="text" id="course" placeholder="Mobile App Development">
+          </div>
+
+          <div class="field">
+            <label>Teacher</label>
+            <input type="text" id="teacher" placeholder="Mr. Rahman">
+          </div>
+
+          <div class="field">
+            <label>Student ID</label>
+            <input type="text" id="studentId" placeholder="2401813">
+          </div>
+
+          <button class="btn-primary" onclick="refreshAll()">Fetch</button>
+          <button class="btn-secondary" onclick="exportCsv()">Export CSV</button>
+        </div>
+
+        <div class="statusline" id="status">Ready.</div>
+      </div>
+
+      <section id="homePage" class="page active">
+        <div class="cards">
+          <div class="card">
+            <div class="label">Records</div>
+            <div class="num" id="recordsNum">0</div>
+            <div class="sub">Total rows returned by your filters</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Unique Students</div>
+            <div class="num" id="uniqueNum">0</div>
+            <div class="sub">Unique student IDs in filtered attendance</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Open Sessions</div>
+            <div class="num" id="openNum">0</div>
+            <div class="sub">Students who have not tapped out yet</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="attendancePage" class="page">
+        <div class="section">
+          <div class="section-header">
+            <h2>Attendance Logs</h2>
+            <div class="section-sub">Filtered attendance records</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Entry Time</th>
+                <th>Exit Time</th>
+                <th>Student ID</th>
+                <th>Room</th>
+                <th>Course</th>
+                <th>Teacher</th>
+                <th>Required Minutes</th>
+                <th>Stayed Minutes</th>
+                <th>Attendance Status</th>
+                <th>Method</th>
+                <th>Total Joined Class</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceBody">
+              <tr><td colspan="12" class="empty">No attendance data yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="summaryPage" class="page">
+        <div class="section">
+          <div class="section-header">
+            <h2>Student Attendance Summary</h2>
+            <div class="section-sub">One row per student with total joined classes</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Total Joined Class</th>
+              </tr>
+            </thead>
+            <tbody id="studentSummaryBody">
+              <tr><td colspan="2" class="empty">No summary data yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="pendingPage" class="page">
+        <div class="section">
+          <div class="section-header">
+            <h2>Pending Student Requests</h2>
+            <div class="section-sub">Teacher approval is required before students can log in</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>Department</th>
+                <th>Batch</th>
+                <th>Session</th>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="pendingBody">
+              <tr><td colspan="8" class="empty">No pending student requests.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="devicePage" class="page">
+        <div class="section">
+          <div class="section-header">
+            <h2>Device Change Requests</h2>
+            <div class="section-sub">Approve new devices when students try to log in from another phone</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>Username</th>
+                <th>Current Device ID</th>
+                <th>Current Device Model</th>
+                <th>Pending Device ID</th>
+                <th>Pending Device Model</th>
+                <th>Device Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="deviceChangeBody">
+              <tr><td colspan="9" class="empty">No pending device change requests.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwMe44-qGoZXDCOBKImOBhZVJGyMACTabapZPpbYTjjekxQGs_OeVPYp1SRsiJg8uI/exec";
+    let currentAttendanceData = [];
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.page).classList.add("active");
+      });
+    });
+
+    async function refreshAll() {
+      document.getElementById("status").textContent = "Loading data...";
+      try {
+        await Promise.all([
+          loadAttendance(),
+          loadSummary(),
+          loadPendingStudents(),
+          loadStudentSummary(),
+          loadDeviceChangeRequests()
+        ]);
+        document.getElementById("apiStatus").textContent = "API OK";
+        document.getElementById("status").textContent = "Done.";
+      } catch (error) {
+        document.getElementById("apiStatus").textContent = "API Error";
+        document.getElementById("status").textContent = "Failed to load data.";
+        console.error(error);
+      }
+    }
+
+    function buildFilterParams() {
+      const date = document.getElementById("date").value.trim();
+      const room = document.getElementById("room").value.trim();
+      const course = document.getElementById("course").value.trim();
+      const teacher = document.getElementById("teacher").value.trim();
+      const studentId = document.getElementById("studentId").value.trim();
+
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      if (room) params.set("room", room);
+      if (course) params.set("course", course);
+      if (teacher) params.set("teacher", teacher);
+      if (studentId) params.set("studentId", studentId);
+      return params;
+    }
+
+    function statusBadge(status) {
+      const s = String(status || "");
+      if (s === "Present") {
+        return `<span class="badge badge-present">${s}</span>`;
+      }
+      if (s === "Short Attendance") {
+        return `<span class="badge badge-short">${s}</span>`;
+      }
+      return `<span class="badge badge-open">${s}</span>`;
+    }
+
+    async function loadAttendance() {
+      const params = buildFilterParams();
+      params.set("action", "getAttendance");
+
+      const res = await fetch(`${API_URL}?${params.toString()}`);
+      const json = await res.json();
+
+      currentAttendanceData = json.data || [];
+      const body = document.getElementById("attendanceBody");
+      body.innerHTML = "";
+
+      if (!currentAttendanceData.length) {
+        body.innerHTML = `<tr><td colspan="12" class="empty">No attendance data found.</td></tr>`;
+        document.getElementById("recordsNum").textContent = "0";
+        document.getElementById("uniqueNum").textContent = "0";
+        return;
+      }
+
+      const uniqueStudents = new Set(currentAttendanceData.map(x => String(x["Student ID"] || "")));
+      document.getElementById("recordsNum").textContent = currentAttendanceData.length;
+      document.getElementById("uniqueNum").textContent = uniqueStudents.size;
+
+      currentAttendanceData.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatDateValue(row["Date"])}</td>
+          <td>${formatTimeValue(row["Entry Time"])}</td>
+          <td>${formatTimeValue(row["Exit Time"])}</td>
+          <td>${safe(row["Student ID"])}</td>
+          <td>${safe(row["Room"])}</td>
+          <td>${safe(row["Course"])}</td>
+          <td>${safe(row["Teacher"])}</td>
+          <td>${safe(row["Required Minutes"])}</td>
+          <td>${safe(row["Stayed Minutes"])}</td>
+          <td>${statusBadge(row["Attendance Status"])}</td>
+          <td><span class="badge badge-method">${safe(row["Method"])}</span></td>
+          <td>${safe(row["Total Joined Class"])}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    async function loadStudentSummary() {
+      const params = buildFilterParams();
+      params.set("action", "getAttendance");
+
+      const res = await fetch(`${API_URL}?${params.toString()}`);
+      const json = await res.json();
+      const data = json.data || [];
+
+      const body = document.getElementById("studentSummaryBody");
+      body.innerHTML = "";
+
+      if (!data.length) {
+        body.innerHTML = `<tr><td colspan="2" class="empty">No summary data found.</td></tr>`;
+        return;
+      }
+
+      const summaryMap = {};
+      data.forEach(row => {
+        const sid = String(row["Student ID"] || "").trim();
+        if (!sid) return;
+        if (!summaryMap[sid]) summaryMap[sid] = 0;
+        summaryMap[sid] += 1;
+      });
+
+      Object.entries(summaryMap).forEach(([sid, total]) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${sid}</td><td>${total}</td>`;
+        body.appendChild(tr);
+      });
+    }
+
+    async function loadSummary() {
+      const params = buildFilterParams();
+      params.set("action", "getSummary");
+
+      const res = await fetch(`${API_URL}?${params.toString()}`);
+      const json = await res.json();
+      document.getElementById("openNum").textContent = json.openSessions ?? 0;
+    }
+
+    async function loadPendingStudents() {
+      const res = await fetch(`${API_URL}?action=getPendingStudents`);
+      const json = await res.json();
+
+      const body = document.getElementById("pendingBody");
+      body.innerHTML = "";
+
+      if (!json.data || !json.data.length) {
+        body.innerHTML = `<tr><td colspan="8" class="empty">No pending student requests.</td></tr>`;
+        return;
+      }
+
+      json.data.forEach(student => {
+        const sid = safe(student["Student ID"]);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${sid}</td>
+          <td>${safe(student["Full Name"])}</td>
+          <td>${safe(student["Department"])}</td>
+          <td>${safe(student["Batch"])}</td>
+          <td>${safe(student["Session"])}</td>
+          <td>${safe(student["Username"])}</td>
+          <td><span class="badge badge-pending">${safe(student["Status"])}</span></td>
+          <td><button class="btn-approve" onclick="approveStudent('${sid}')">Approve</button></td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    async function loadDeviceChangeRequests() {
+      const res = await fetch(`${API_URL}?action=getDeviceChangeRequests`);
+      const json = await res.json();
+
+      const body = document.getElementById("deviceChangeBody");
+      body.innerHTML = "";
+
+      if (!json.data || !json.data.length) {
+        body.innerHTML = `<tr><td colspan="9" class="empty">No pending device change requests.</td></tr>`;
+        return;
+      }
+
+      json.data.forEach(student => {
+        const sid = safe(student["Student ID"]);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${sid}</td>
+          <td>${safe(student["Full Name"])}</td>
+          <td>${safe(student["Username"])}</td>
+          <td>${safe(student["Device ID"])}</td>
+          <td>${safe(student["Device Model"])}</td>
+          <td>${safe(student["Pending Device ID"])}</td>
+          <td>${safe(student["Pending Device Model"])}</td>
+          <td><span class="badge badge-device">${safe(student["Device Status"])}</span></td>
+          <td><button class="btn-device" onclick="approveDeviceChange('${sid}')">Approve Device</button></td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    async function approveStudent(studentId) {
+      const ok = confirm(`Approve student ID ${studentId}?`);
+      if (!ok) return;
+
+      const res = await fetch(`${API_URL}?action=approveStudent&studentId=${encodeURIComponent(studentId)}`);
+      const json = await res.json();
+      alert(json.message || "Done");
+      refreshAll();
+    }
+
+    async function approveDeviceChange(studentId) {
+      const ok = confirm(`Approve device change for student ID ${studentId}?`);
+      if (!ok) return;
+
+      const res = await fetch(`${API_URL}?action=approveDeviceChange&studentId=${encodeURIComponent(studentId)}`);
+      const json = await res.json();
+      alert(json.message || "Done");
+      refreshAll();
+    }
+
+    function exportCsv() {
+      if (!currentAttendanceData.length) {
+        alert("No attendance data to export.");
+        return;
+      }
+
+      const headers = [
+        "Date", "Entry Time", "Exit Time", "Student ID",
+        "Room", "Course", "Teacher", "Required Minutes",
+        "Stayed Minutes", "Attendance Status", "Method", "Total Joined Class"
+      ];
+
+      const rows = currentAttendanceData.map(r => [
+        formatDateValue(r["Date"]),
+        formatTimeValue(r["Entry Time"]),
+        formatTimeValue(r["Exit Time"]),
+        safe(r["Student ID"]),
+        safe(r["Room"]),
+        safe(r["Course"]),
+        safe(r["Teacher"]),
+        safe(r["Required Minutes"]),
+        safe(r["Stayed Minutes"]),
+        safe(r["Attendance Status"]),
+        safe(r["Method"]),
+        safe(r["Total Joined Class"])
+      ]);
+
+      const csv = [
+        headers.join(","),
+        ...rows.map(r => r.map(csvEscape).join(","))
+      ].join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "attendance_export.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const s = String(value ?? "");
+      if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    }
+
+    function safe(v) {
+      return String(v ?? "");
+    }
+
+    function formatDateValue(value) {
+      if (!value) return "-";
+      const text = String(value).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+      const d = new Date(text);
+      if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+      return text;
+    }
+
+    function formatTimeValue(value) {
+      if (!value) return "-";
+      const text = String(value).trim();
+      if (/^\d{2}:\d{2}:\d{2}$/.test(text)) return text;
+      const d = new Date(text);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+      }
+      return text;
+    }
+
+    refreshAll();
+  </script>
+</body>
+</html>
