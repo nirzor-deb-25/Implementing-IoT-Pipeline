@@ -1,92 +1,127 @@
-### NFC-Based Hybrid Attendance System
-A secure attendance system using NFC, biometric authentication, and device binding to prevent proxy attendance and ensure authenticity.
-The system ensures that attendance is recorded only when the actual user is physically present.
-It combines a mobile NFC reader application with a web-based dashboard for monitoring and control.
-Designed for educational institutions and organizations, it provides a reliable and tamper-resistant attendance solution.
+# NFC-Based Hybrid Attendance System
 
-### Overview:
-Traditional attendance systems are vulnerable to proxy attendance and misuse.
+This project focuses on developing a hybrid attendance system using NFC technology and a mobile application. The aim was to explore how attendance can be recorded more reliably compared to traditional manual methods.
 
 
-### This project addresses these issues by combining:
-NFC-based identification
-Biometric verification
-Device-level restrictions
 
-### Target Users:
-Educational institutions
-Training centers
-Organizations requiring secure attendance tracking
+## Project Overview
 
-### Features
-One account per device
-Prevents multiple accounts on a single device
-Fingerprint authentication required before NFC scan
-
-### Teacher approval required for:
-New login
-Device change
-Protection against proxy attendance
-
-### Project Structure
-nfc_attendance_system/   # Backend + Web dashboard
-nfc_reader_app/          # Flutter NFC mobile app
+The system was designed to reduce proxy attendance and improve efficiency by using NFC-based identification. The project mainly focuses on a mobile-based solution, supported by initial hardware experimentation.
 
 
-### Tech Stack
 
-Mobile App	= Flutter (Dart)
-Web	= HTML, JavaScript
-Hardware =	NFC + Fingerprint
-Versioning = 	Git & GitHub
+## Work Done
 
-### Getting Started
+### Mobile Application (Flutter)
 
-### Prerequisites
-Flutter SDK installed
-NFC-enabled Android device
-Git installed
+- Developed a Flutter application for attendance handling
+- Designed basic UI screens including:
+  - Login page
+  - NFC scanning page
+  - Student-related interfaces
+- Integrated NFC functionality using the mobile device
 
-### Installation
-git clone https://github.com/nirzor-deb-25/nfc_attendance_system.git
-cd nfc_reader_app
-flutter pub get
-flutter run
+### NFC Implementation
 
+- Successfully used **mobile phone NFC** for reading tags/cards
+- Implemented basic scanning logic within the app
+- This became the main working solution
 
-### Usage
-Login (requires approval for first-time use)
-Verify fingerprint
-Tap NFC card
-Attendance is recorded securely
+### Hardware Testing (ESP32 + PN532)
 
-### Architecture Overview
-[User Device]
-   ↓ (Fingerprint + NFC)
-[Flutter App]
-   ↓ (API Request)
-[Backend System]
-   ↓
-[Database + Dashboard]
+- Attempted to integrate PN532 NFC module with ESP32-S3
+- Tested both I2C and SPI communication
+- Used Arduino IDE and libraries for setup
 
-### Testing
-Manual testing on NFC-enabled devices
+Issues faced:
+- PN532 was not detected properly
+- Communication errors persisted
+- Device was visible in I2C scan but not working with library
 
-### Functional testing for:
-Authentication
-Device binding
-Approval system
-CI/CD and Security
-GitHub Security Features
-Dependabot alerts
-Secret scanning
-Push protection
-Code scanning (CodeQL recommended)
+Final decision:
+- Hardware approach was not finalized
+- Shifted to mobile NFC solution
+
+### Teacher Dashboard
+
+- Created a simple HTML-based dashboard (`teacher_dashboard.html`)
+- Intended to display attendance data structure
+- Not connected to backend yet
+
+### Project Organization
+
+- Structured the project into multiple folders:
+  - Final Project Implementation
+  - Initial Project Planning
+  - UI/UX design
+  - Reports and documentation
+- Used Git and GitHub for version control
 
 
-This project is licensed under the MIT License.
 
-### Acknowledgments
-Flutter community
-NFC technology resources
-Academic guidance
+## Project Structure
+
+- Final Project Implementation/
+- Initial Project Planning/
+- ML/
+- Project in Company Coperation Report/
+- UI UX/
+- nfc_attendance_system/
+- nfc_reader_app/
+- teacher_dashboard.html
+- README.md
+
+
+
+## Technologies Used
+
+- Flutter (Dart)
+- HTML
+- Git & GitHub
+- Arduino IDE (for testing)
+- ESP32-S3 (experimental)
+- PN532 NFC module (experimental)
+
+
+
+## How to Run
+
+1. Clone the repository:
+   git clone https://github.com/nirzor-deb-25/Implementing-IoT-Pipeline.git
+
+2. Go to the app folder:
+   cd nfc_reader_app
+
+3. Install dependencies:
+   flutter pub get
+
+4. Run the app:
+   flutter run
+
+
+
+## Limitations
+
+- ESP32 + PN532 hardware setup did not work successfully
+- No backend/database integration
+- Dashboard is static (no live data connection)
+- No authentication system implemented
+
+
+
+## Reports
+
+All project reports are available in:
+Project in Company Coperation Report/
+
+
+
+## Author
+
+Nirzor Deb  
+https://github.com/nirzor-deb-25
+
+
+## License
+
+This project is developed for academic purposes.
